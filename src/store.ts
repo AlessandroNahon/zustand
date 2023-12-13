@@ -2,19 +2,14 @@ import { create } from 'zustand'
 import { LineItem, Product, QuoteState } from './types'
 import { uuidv4 } from './utils'
 
-const quoteTemplate = {
-	id: uuidv4(),
+export const useQuote = create<QuoteState>((set) => ({
+	id: '',
 	name: '',
 	lineItems: [],
 	tax: 0,
 	subtotal: 0,
 	discount: 0,
 	total: 0,
-}
-
-export const useQuote = create<QuoteState>((set) => ({
-	...quoteTemplate,
-	id: '',
 	createQuote: () => set(() => ({ id: uuidv4() })),
 	addLineItem: (product: Product) =>
 		set((state) => {
