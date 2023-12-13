@@ -14,7 +14,6 @@ export const useQuote = create<QuoteState>((set) => ({
 	addLineItem: (product: Product) =>
 		set((state) => {
 			if (
-				state.id === '' &&
 				state.lineItems?.length > 0 &&
 				state.lineItems?.some((p: LineItem) => p.id === product.id)
 			) {
