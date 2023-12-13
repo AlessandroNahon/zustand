@@ -59,10 +59,58 @@ export default function App() {
 					{quote.lineItems?.map((li: LineItem, idx: number) => (
 						<div
 							key={li.sku}
-							className='mb-5 p-5 relative bg-indigo-600 rounded-md flex'
+							className='mb-5 p-5 w-full bg-indigo-600 rounded-md flex flex-row justify-between items-start'
 						>
+							<div className='w-full flex lg:flex-row sm:flex-col'>
+								<div>
+									<Image
+										className='w-40 aspect-video bg-left bg-contain bg-no-repeat'
+										image={li.url}
+									/>
+									<div className='text-left pb-2'>
+										<h3 className='font-semibold'>{li.name}</h3>
+										<p className='text-sm'>SKU: {li.sku}</p>
+									</div>
+								</div>
+								<div className='flex flex-col'>
+									<span>
+										<label className='m-0 p-0 relative -bottom-1'>Qty:</label>
+										<input
+											type='text'
+											onChange={(e) => {
+												updateItemQty(e.target.value, li.id)
+												updateItemTotal(li.id)
+												updateSubTotal()
+												updateTotal()
+											}}
+											value={li.quantity > 0 ? li.quantity : ''}
+											className='bg-transparent border-b-2 ml-1 w-3/6'
+										/>
+									</span>
+									<span>
+										<label className='m-0 p-0 relative -bottom-1'>
+											Unit Price:
+										</label>
+										<input
+											type='text'
+											onChange={(e) => {
+												updateItemUnitPrice(e.target.value, li.id)
+												updateItemTotal(li.id)
+												updateSubTotal()
+												updateTotal()
+											}}
+											value={li.unitPrice > 0 ? li.unitPrice : ''}
+											className='bg-transparent border-b-2 ml-1 w-3/6'
+										/>
+									</span>
+
+									<p className='mt-5'>
+										Unit Total: {convertToCurrency(li.totalPrice, 'CAD')}
+									</p>
+								</div>
+							</div>
 							<Image
-								className='absolute right-5 w-10 aspect-square cursor-pointer bg-left bg-contain bg-no-repeat'
+								className='w-10 aspect-square cursor-pointer bg-left bg-contain bg-no-repeat'
 								image={removeIcon}
 								onClick={() => {
 									removeLineItem(li.id)
@@ -74,52 +122,6 @@ export default function App() {
 									}
 								}}
 							/>
-							<div>
-								<Image
-									className='w-40 aspect-video bg-left bg-contain bg-no-repeat'
-									image={li.url}
-								/>
-								<div className='text-left pb-2'>
-									<h3 className='font-semibold'>{li.name}</h3>
-									<p className='text-sm'>SKU: {li.sku}</p>
-								</div>
-							</div>
-							<div className='flex flex-col'>
-								<span>
-									<label className='m-0 p-0 relative -bottom-1'>Qty:</label>
-									<input
-										type='text'
-										onChange={(e) => {
-											updateItemQty(e.target.value, li.id)
-											updateItemTotal(li.id)
-											updateSubTotal()
-											updateTotal()
-										}}
-										value={li.quantity > 0 ? li.quantity : ''}
-										className='bg-transparent border-b-2 ml-1 w-3/6'
-									/>
-								</span>
-								<span>
-									<label className='m-0 p-0 relative -bottom-1'>
-										Unit Price:
-									</label>
-									<input
-										type='text'
-										onChange={(e) => {
-											updateItemUnitPrice(e.target.value, li.id)
-											updateItemTotal(li.id)
-											updateSubTotal()
-											updateTotal()
-										}}
-										value={li.unitPrice > 0 ? li.unitPrice : ''}
-										className='bg-transparent border-b-2 ml-1 w-3/6'
-									/>
-								</span>
-
-								<p className='mt-5'>
-									Unit Total: {convertToCurrency(li.totalPrice, 'CAD')}
-								</p>
-							</div>
 						</div>
 					))}
 				</div>
