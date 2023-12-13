@@ -3,19 +3,23 @@ import { LineItem } from './types'
 import { products } from './api'
 
 import removeIcon from './assets/trash.svg'
-import { useStore } from './store'
-import { convertToCurrency, isEmpty } from './utils'
+import { useQuote } from './store'
+import { convertToCurrency } from './utils'
 
 import Image from './Image'
 
 export default function App() {
-	const quote = useStore((state) => state.quote)
-	const createQuote = useStore((state) => state.createQuote)
-	const addLineItem = useStore((state) => state.addLineItem)
-	const removeLineItem = useStore((state) => state.removeLineItem)
-	const updateItemQty = useStore((state) => state.updateItemQty)
-	const updateItemUnitPrice = useStore((state) => state.updateItemUnitPrice)
-	const updateItemTotal = useStore((state) => state.updateItemTotal)
+	const quote = useQuote((state) => state)
+	const createQuote = useQuote((state) => state.createQuote)
+	const addLineItem = useQuote((state) => state.addLineItem)
+	const removeLineItem = useQuote((state) => state.removeLineItem)
+	const updateItemQty = useQuote((state) => state.updateItemQty)
+	const updateItemUnitPrice = useQuote((state) => state.updateItemUnitPrice)
+	const updateItemTotal = useQuote((state) => state.updateItemTotal)
+	const updateSubTotal = useQuote((state) => state.updateSubTotal)
+	const updateDiscount = useQuote((state) => state.updateDiscount)
+	const updateTax = useQuote((state) => state.updateTax)
+	const updateTotal = useQuote((state) => state.updateTotal)
 
 	return (
 		<main className='flex fixed h-screen w-screen bg-indigo-950 text-white'>
@@ -26,11 +30,12 @@ export default function App() {
 						<button
 							key={product.sku}
 							onClick={() => {
-								if (isEmpty(quote)) {
+								if (quote.id === '') {
 									createQuote()
 									addLineItem(product)
+								} else {
+									addLineItem(product)
 								}
-								addLineItem(product)
 							}}
 							className='m-5 rounded'
 						>
@@ -51,7 +56,7 @@ export default function App() {
 			<section className='w-3/6 p-5 overflow-y-scroll'>
 				<h2 className='pb-10 text-2xl'>Quote Builder</h2>
 				<div className='py-5 pr-5'>
-					{quote.lineItems?.map((li: LineItem) => (
+					{quote.lineItems?.map((li: LineItem, idx: number) => (
 						<div
 							key={li.sku}
 							className='mb-5 p-5 relative bg-indigo-600 rounded-md flex'
@@ -59,7 +64,15 @@ export default function App() {
 							<Image
 								className='absolute right-5 w-10 aspect-square cursor-pointer bg-left bg-contain bg-no-repeat'
 								image={removeIcon}
-								onClick={() => removeLineItem(li.id)}
+								onClick={() => {
+									removeLineItem(li.id)
+									updateSubTotal()
+									updateTotal()
+									if (idx === 0 && quote.lineItems.length < 2) {
+										updateDiscount(0)
+										updateTax(0)
+									}
+								}}
 							/>
 							<div>
 								<Image
@@ -79,6 +92,8 @@ export default function App() {
 										onChange={(e) => {
 											updateItemQty(e.target.value, li.id)
 											updateItemTotal(li.id)
+											updateSubTotal()
+											updateTotal()
 										}}
 										value={li.quantity > 0 ? li.quantity : ''}
 										className='bg-transparent border-b-2 ml-1 w-3/6'
@@ -93,6 +108,8 @@ export default function App() {
 										onChange={(e) => {
 											updateItemUnitPrice(e.target.value, li.id)
 											updateItemTotal(li.id)
+											updateSubTotal()
+											updateTotal()
 										}}
 										value={li.unitPrice > 0 ? li.unitPrice : ''}
 										className='bg-transparent border-b-2 ml-1 w-3/6'
@@ -105,6 +122,41 @@ export default function App() {
 							</div>
 						</div>
 					))}
+				</div>
+				<div>
+					<p className='mb-5'>
+						{' '}
+						Subtotal: {convertToCurrency(quote.subtotal, 'CAD')}
+					</p>
+					<div>
+						<label className='m-0 p-0 relative -bottom-1'>Discount:</label>
+						<input
+							type='text'
+							name='discount'
+							onChange={(e) => {
+								updateDiscount(Number(e.target.value))
+								updateTotal()
+							}}
+							value={quote.discount > 0 ? quote.discount : ''}
+							className='bg-transparent border-b-2 ml-1'
+						/>
+					</div>
+					<div>
+						<label className='m-0 p-0 relative -bottom-1'>Tax:</label>
+						<input
+							type='text'
+							name='tax'
+							onChange={(e) => {
+								updateTax(Number(e.target.value))
+								updateTotal()
+							}}
+							value={quote.tax > 0 ? quote.tax : ''}
+							className='bg-transparent border-b-2 ml-1'
+						/>
+					</div>
+
+					<div className='w-full'></div>
+					<p className='mt-5'>Total: {convertToCurrency(quote.total, 'CAD')}</p>
 				</div>
 			</section>
 		</main>
