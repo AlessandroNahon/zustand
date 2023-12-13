@@ -12,7 +12,7 @@ const quoteTemplate = {
 	total: 0,
 }
 
-export const useQuote = create<QuoteState>((set, get) => ({
+export const useQuote = create<QuoteState>((set) => ({
 	...quoteTemplate,
 	id: '',
 	createQuote: () => set(() => ({ id: uuidv4() })),
@@ -71,9 +71,9 @@ export const useQuote = create<QuoteState>((set, get) => ({
 			}),
 		})),
 	updateSubTotal: () =>
-		set(() => ({
-			subtotal: get()
-				.lineItems?.map((li: LineItem) => li.totalPrice)
+		set((state) => ({
+			subtotal: state.lineItems
+				?.map((li: LineItem) => li.totalPrice)
 				.reduce((partialSum: number, a: number) => partialSum + a, 0),
 		})),
 	updateDiscount: (discount) => set(() => ({ discount })),
